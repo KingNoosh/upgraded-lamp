@@ -75,16 +75,14 @@ function onPaste() {
   };
   console.log(obj);
 }
-
 function addInputListeners(item) {
   item.addEventListener('copy', onCopy, false);
   item.addEventListener('paste', onPaste, false);
   item.addEventListener('input', startTimeTaken, false);
 }
-
 function initialise() {
   // If we already have a session id, there's no point generating another'
-  if (sessionStorage.getItem('id')) {
+  if (!sessionStorage.getItem('id')) {
     sessionStorage.setItem('id', generateSessionId());
   }
 
