@@ -11,6 +11,7 @@ function generateSessionId() {
     ' '.repeat(h).replace(/./g, function() { return s(m.random() * h); });
 }
 function onResize() {
+  // TODO: Reminder to self to debounce the resize event so I don't spam myself
   var obj = {
     'eventType': 'windowResize',
     'websiteUrl': window.location.href,
@@ -20,7 +21,7 @@ function onResize() {
   };
   console.log(obj);
 }
-function startTimeTaken(e) {
+function startTimeTaken() {
   if(!timeStarted) {
     timeStarted = Date.now() / 1000;
   }
@@ -92,9 +93,9 @@ function initialise() {
   //
   // Merging an HTMLCollection would mean turning them into actual arrays but then
   // that'd make this code seem slightly more complicated than it is.
-  var inputs = document.getElementsByTagName('input');
-  var textareas = document.getElementsByTagName('textarea');
-  var forms = document.getElementsByTagName('form');
+  var inputs = document.getElementsByTagName('input'),
+      textareas = document.getElementsByTagName('textarea'),
+      forms = document.getElementsByTagName('form');
 
   for (var i = inputs.length - 1; i >= 0; i--) {
     addInputListeners(inputs[i]);
