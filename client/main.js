@@ -10,16 +10,28 @@ function generateSessionId() {
   return s(d.now() / 1000)+
     ' '.repeat(h).replace(/./g, function() { return s(m.random() * h); });
 }
-function onResize() {
-  // TODO: Reminder to self to debounce the resize event so I don't spam myself
+function postResize() {
   var obj = {
     'eventType': 'windowResize',
     'websiteUrl': window.location.href,
     'sessionId': sessionStorage.getItem('id'),
-    'resizeFrom': {x: 1, y: 1},
-    'resizeTo': {x: 2, y: 2}
+    'resizeFrom': cacheWindowSize,
+    'resizeTo': {x: window.innerWidth, y: window.innerHeight}
   };
+  cacheWindowSize = undefined;
   console.log(obj);
+}
+function onResize() {
+  if (!cacheWindowSize) {
+    cacheWindowSize = {x: window.innerWidth, y: window.innerHeight};
+  }
+  var context = this, args = arguments,
+      later = function() {
+        timeout = null;
+        postResize.apply(this, args);
+      };
+  clearTimeout(timeout);
+  timeout = setTimeout(later, 250);
 }
 function startTimeTaken() {
   if(!timeStarted) {
@@ -106,5 +118,7 @@ function initialise() {
   window.addEventListener('resize', onResize, false);
 }
 
-var timeStarted;
+var timeStarted,
+    cacheWindowSize,
+    timeout;
 initialise();
