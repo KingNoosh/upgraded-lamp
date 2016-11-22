@@ -16,27 +16,44 @@ function generateSessionId() {
     ' '.repeat(h).replace(/./g, function() { return s(m.random() * h); });
 }
 
+function postEvent(payload) {
+  return fetch(
+    'http://localhost:5000',
+    {
+      'method': 'POST',
+      'body': JSON.stringify(payload),
+      'headers': {
+        'Content-Type': 'application/json'
+      }
+    }
+  ).then(function(res) { console.log(res); })
+  .catch(function(res) { console.log(res); });
+}
+
 function postResize() {
-  var obj = {
-    'eventType': 'windowResize',
-    'websiteUrl': window.location.href,
-    'sessionId': sessionStorage.getItem('id'),
-    'resizeFrom': cacheWindowSize,
-    'resizeTo': {x: window.innerWidth, y: window.innerHeight}
-  };
+  var payload = {
+      'eventType': 'windowResize',
+      'websiteUrl': window.location.href,
+      'sessionId': sessionStorage.getItem('id'),
+      'resizeFrom': cacheWindowSize,
+      'resizeTo': {x: window.innerWidth, y: window.innerHeight}
+    };
+
   cacheWindowSize = undefined;
-  console.log(obj);
+  postEvent(payload);
 }
 
 function onResize() {
   if (!cacheWindowSize) {
     cacheWindowSize = {x: window.innerWidth, y: window.innerHeight};
   }
+
   var context = this, args = arguments,
       later = function() {
         timeout = null;
         postResize.apply(this, args);
       };
+
   clearTimeout(timeout);
   timeout = setTimeout(later, 250);
 }
@@ -52,7 +69,7 @@ function endTimeTaken() {
     return;
   }
 
-  var obj = {
+  var payload = {
     'eventType': 'timeTaken',
     'websiteUrl': window.location.href,
     'sessionId': sessionStorage.getItem('id'),
@@ -60,7 +77,7 @@ function endTimeTaken() {
   };
 
   timeStarted = undefined;
-  console.log(obj);
+  postEvent(payload);
 }
 
 function onCopy() {
@@ -71,14 +88,15 @@ function onCopy() {
     return;
   }
 
-  var obj = {
+  var payload = {
     'eventType': 'copyAndPaste',
     'websiteUrl': window.location.href,
     'sessionId': sessionStorage.getItem('id'),
     'pasted': false,
     'formId': document.activeElement.id
   };
-  console.log(obj);
+
+  postEvent(payload);
 }
 
 function onPaste() {
@@ -89,14 +107,15 @@ function onPaste() {
     return;
   }
 
-  var obj = {
+  var payload = {
     'eventType': 'copyAndPaste',
     'websiteUrl': window.location.href,
     'sessionId': sessionStorage.getItem('id'),
     'pasted': true,
     'formId': document.activeElement.id
   };
-  console.log(obj);
+
+  postEvent(payload);
 }
 
 function addInputListeners(item) {
@@ -106,7 +125,7 @@ function addInputListeners(item) {
 }
 
 function onDOMReady() {
-  // If we already have a session id, there's no point generating another'
+  // If we already have a session id, there's no point generating another
   if (!sessionStorage.getItem('id')) {
     sessionStorage.setItem('id', generateSessionId());
   }
@@ -131,4 +150,4 @@ function onDOMReady() {
   window.addEventListener('resize', onResize, false);
 }
 
-document.addEventListener("DOMContentLoaded", onDOMReady);
+document.addEventListener('DOMContentLoaded', onDOMReady);
